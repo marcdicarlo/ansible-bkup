@@ -4,7 +4,6 @@ This project installs a local `rsync` backup script and schedules cron jobs to b
 
 ## What it does
 
-- Ensures `rsync` is installed.
 - Installs `scripts/backup.sh` to `~/.local/bin/backup.sh`.
 - Creates `~/log` for backup logs.
 - Creates one cron entry per source directory.
@@ -60,3 +59,11 @@ Example: `/home/marc/repos` -> `/mnt/nfs-truenas/marc-bkup/repos`
 Cron appends output to:
 
 `~/log/backup.log`
+
+## Restore example
+
+Restore a backup back to your local machine with `rsync`:
+
+```bash
+rsync -avh --progress /mnt/nfs-truenas/marc-bkup/repos/ /home/marc/repos/
+```

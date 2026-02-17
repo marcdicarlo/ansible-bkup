@@ -1,26 +1,21 @@
 ---
 - name: Configure local rsync backups
   hosts: localhost
-  gather_facts: true
+  gather_facts: false
   become: false
 
   vars:
-    script_dir: "{{ ansible_env.HOME }}/.local/bin"
+    script_dir: "~/.local/bin"
     backup_script_path: "{{ script_dir }}/backup.sh"
-    log_dir: "{{ ansible_env.HOME }}/log"
+    log_dir: "~/log"
     backup_log: "{{ log_dir }}/backup.log"
     backup_target_root: /mnt/nfs-truenas/marc-bkup
     backup_hour: "4"
     backup_minute: "0"
     backup_dirs:
-      - "{{ ansible_env.HOME }}/repos"
+      - "~/repos"
 
   tasks:
-    - name: Ensure rsync is installed
-      ansible.builtin.package:
-        name: rsync
-        state: present
-
     - name: Ensure script directory exists
       ansible.builtin.file:
         path: "{{ script_dir }}"
