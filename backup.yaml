@@ -10,7 +10,7 @@
     log_dir: "~/log"
     backup_log: "{{ log_dir }}/backup.log"
     backup_target_root: /mnt/nfs-truenas/marc-bkup
-    backups_to_keep: 30
+    backups_to_keep: 7
     backup_hour: "4"
     backup_minute: "0"
     backup_dirs:
@@ -18,6 +18,8 @@
       - "~/Documents"
       - "~/Pictures"
       - "~/Videos"
+      - "~/.config"
+      - "~/.zshrc"
 
   tasks:
     - name: Ensure script directory exists
