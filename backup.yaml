@@ -1,0 +1,51 @@
+---
+- name: Configure local rsync backups
+  hosts: localhost
+  gather_facts: true
+  become: false
+
+  vars:
+    script_dir: "{{ ansible_env.HOME }}/.local/bin"
+    backup_script_path: "{{ script_dir }}/backup.sh"
+    log_dir: "{{ ansible_env.HOME }}/log"
+    backup_log: "{{ log_dir }}/backup.log"
+    backup_target_root: /mnt/nfs-truenas/marc-bkup
+    backup_hour: "4"
+    backup_minute: "0"
+    backup_dirs:
+      - "{{ ansible_env.HOME }}/repos"
+
+  tasks:
+    - name: Ensure rsync is installed
+      ansible.builtin.package:
+        name: rsync
+        state: present
+
+    - name: Ensure script directory exists
+      ansible.builtin.file:
+        path: "{{ script_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Install backup script
+      ansible.builtin.copy:
+        src: scripts/backup.sh
+        dest: "{{ backup_script_path }}"
+        mode: "0755"
+
+    - name: Ensure log directory exists
+      ansible.builtin.file:
+        path: "{{ log_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Configure cron jobs for each backup source
+      ansible.builtin.cron:
+        name: "backup {{ item | basename }}"
+        minute: "{{ backup_minute }}"
+        hour: "{{ backup_hour }}"
+        job: >-
+          {{ backup_script_path | quote }} {{ item | quote }}
+          {{ (backup_target_root ~ '/' ~ (item | basename)) | quote }}
+          >> {{ backup_log | quote }} 2>&1
+      loop: "{{ backup_dirs }}"
