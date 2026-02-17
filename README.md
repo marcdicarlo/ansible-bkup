@@ -1,6 +1,6 @@
 # Local Backup Automation (Ansible)
 
-This project installs a local `rsync` backup script and schedules cron jobs to back up one or more directories.
+This project installs a local tar/xz backup script and schedules cron jobs to back up one or more directories.
 
 ## What it does
 
@@ -8,16 +8,18 @@ This project installs a local `rsync` backup script and schedules cron jobs to b
 - Creates `~/log` for backup logs.
 - Creates one cron entry per source directory.
 - Runs backups daily at `04:00` by default.
+- Creates compressed timestamped archives (`.tar.xz`) per source.
+- Keeps only the configured number of newest backups per source.
 
 ## Files
 
 - `backup.yaml`: main Ansible playbook.
-- `scripts/backup.sh`: `rsync` wrapper script.
+- `scripts/backup.sh`: tar/xz archive script.
 
 ## Requirements
 
 - Ansible installed on the local machine.
-- Permission to install packages (`rsync`) if missing.
+- `tar` and `xz` installed on the local machine.
 - Access to the backup target path.
 
 ## Usage
@@ -45,14 +47,17 @@ Defined in `backup.yaml` under `vars`:
 - `log_dir`: directory used for logs.
 - `backup_log`: log file path used by cron jobs.
 - `backup_target_root`: root destination for backups.
+- `backups_to_keep`: number of newest archives retained per source.
 - `backup_hour` / `backup_minute`: cron schedule.
 - `backup_dirs`: list of source directories to back up.
 
-Each source in `backup_dirs` is synced into:
+Each source in `backup_dirs` is archived into:
 
 `<backup_target_root>/<basename_of_source_dir>`
 
-Example: `/home/marc/repos` -> `/mnt/nfs-truenas/marc-bkup/repos`
+Example archive path:
+
+`/mnt/nfs-truenas/marc-bkup/repos/repos_20260216_040000.tar.xz`
 
 ## Log output
 
@@ -62,8 +67,8 @@ Cron appends output to:
 
 ## Restore example
 
-Restore a backup back to your local machine with `rsync`:
+Restore from an archive with `tar`:
 
 ```bash
-rsync -avh --progress /mnt/nfs-truenas/marc-bkup/repos/ /home/marc/repos/
+tar -xJf /mnt/nfs-truenas/marc-bkup/repos/repos_20260216_040000.tar.xz -C /home/marc
 ```
