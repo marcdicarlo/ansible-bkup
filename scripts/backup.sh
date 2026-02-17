@@ -3,7 +3,7 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 <source_dir> <target_dir> [backups_to_keep]" >&2
+  echo "Usage: $0 <source_path> <target_dir> [backups_to_keep]" >&2
   exit 1
 }
 
@@ -11,7 +11,7 @@ if [[ $# -lt 2 || $# -gt 3 ]]; then
   usage
 fi
 
-source_dir="$1"
+source_path="$1"
 target_dir="$2"
 backups_to_keep="${3:-${BACKUPS_TO_KEEP:-7}}"
 
@@ -37,8 +37,8 @@ cleanup_old_archives() {
   done
 }
 
-if [[ ! -d "$source_dir" ]]; then
-  echo "Error: source directory does not exist: $source_dir" >&2
+if [[ ! -e "$source_path" ]]; then
+  echo "Error: source path does not exist: $source_path" >&2
   exit 1
 fi
 
@@ -59,8 +59,8 @@ if ! command -v xz >/dev/null 2>&1; then
   exit 1
 fi
 
-source_parent="$(dirname "${source_dir%/}")"
-source_base="$(basename "${source_dir%/}")"
+source_parent="$(dirname "${source_path%/}")"
+source_base="$(basename "${source_path%/}")"
 timestamp="$(date '+%Y%m%d_%H%M%S')"
 archive_path="${target_dir%/}/${source_base}_${timestamp}.tar.gz"
 

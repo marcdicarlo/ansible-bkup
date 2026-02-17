@@ -13,7 +13,7 @@
     backups_to_keep: 7
     backup_hour: "4"
     backup_minute: "0"
-    backup_dirs:
+    backup_paths:
       - "~/repos"
       - "~/Documents"
       - "~/Pictures"
@@ -46,8 +46,8 @@
         minute: "{{ backup_minute }}"
         hour: "{{ backup_hour }}"
         job: >-
-          {{ backup_script_path | quote }} {{ item | quote }}
-          {{ (backup_target_root ~ '/' ~ (item | basename)) | quote }}
-          {{ backups_to_keep | quote }}
-          >> {{ backup_log | quote }} 2>&1
-      loop: "{{ backup_dirs }}"
+          {{ backup_script_path }} {{ item }}
+          {{ (backup_target_root ~ '/' ~ (item | basename)) }}
+          {{ backups_to_keep }}
+          >> {{ backup_log }} 2>&1
+      loop: "{{ backup_paths }}"
